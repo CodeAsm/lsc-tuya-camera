@@ -1,17 +1,47 @@
-# LSC Camera  Root Toolkit
+# Root and customization for LSC Outdoor 1080P and LSC Rotating 1080P cameras
 
 This file documents the current firmware findings and a practical SD-card flow to boot custom scripts and keep local
 services.
 
 This findings belongs to version `6.2863.123` but it should work on any version, as long as you teak the config files.
 
+Huge thanks to [guino/LSCOutdoor1080P](https://github.com/guino/LSCOutdoor1080P) And Tobeas(tasarren) (https://github.com/tasarren/lsc-tuya-toolkit) for creating a new up to date toolkit.
 
-Huge thanks to [guino/LSCOutdoor1080P](https://github.com/guino/LSCOutdoor1080P) because their findings allowed me to
-create this toolkit.
+## How to use (quick steps)
 
-If this project was useful to you, please consider supporting me.
+1. Format SD card as FAT32.
+2. Tweak the config files in `sd_card/custom/configs/` folder.
+3. Copy everything from `sd_card/` to SD root.
+4. Boot camera with SD inserted.
+5. Connect via telnet to `YOUR_IP:23` or `YOUR_IP:24` if you enable `TELNET=1` in `hack.conf` as an alternative Telnet service
+6. Enjoy
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/tasarren)
+### What does it do
+1. Dumps the entire filesystem from your device into `sd_card/dumps` as a backup
+2. Injects some payloads to prevent regular boot.
+3. Creates `/etc/shadow` with an user `root` with password `telnet`
+> You can create your own password replacing `sd_card/shadow` file
+  
+For normal behavior:
+
+- Do not use the SD Card :)
+
+## Wi-Fi setup from SD
+You should use `sd_card/_ak39_factory.ini` to setup your Wi-Fi settings to allow Anyka IPC to set it up for you.
+> You can leave ip, netmask and gateway blank to use DHCP
+
+If you do not want to use this (whatever), ensure `_ak39_factory.ini` is empty and edit `sd_card/custom/configs/wifi.conf`.
+
+This will start wpa_supplicant with the settings provided in `wifi.conf`
+
+Notes:
+- `WIFI_MODE=none` leaves networking unchanged (stock firmware manages it).
+- The scripts use `wpa_supplicant` + `wpa_cli` via `/usr/sbin/station_connect.sh`.
+
+## Logs
+
+All custom logs are written to the SD card under `SD_DIR/logs/` (where `SD_DIR` is `/tmp/sd` on-device).
+
 
 ## Key boot findings from the dump
 
@@ -162,41 +192,6 @@ All custom behavior is controlled by `custom/configs/hack.conf` (strict shell `K
 Important toggles:
 
 - `DUMP_FORCE=1` forces dump to run again even if done flag exists.
-
-## How to use (quick steps)
-
-1. Format SD card as FAT32.
-2. Tweak the config files in `sd_card/custom/configs/` folder.
-3. Copy everything from `sd_card/` to SD root.
-4. Boot camera with SD inserted.
-5. Connect via telnet to `YOUR_IP:23` or `YOUR_IP:24` if you enable `TELNET=1` in `hack.conf` as an alternative Telnet service
-6. Enjoy
-
-### What does it do
-1. Dumps the entire filesystem from your device into `sd_card/dumps` as a backup
-2. Injects some payloads to prevent regular boot.
-3. Creates `/etc/shadow` with an user `root` with password `telnet`
-> You can create your own password replacing `sd_card/shadow` file
-  
-For normal behavior:
-
-- Do not use the SD Card :)
-
-## Wi-Fi setup from SD
-You should use `sd_card/_ak39_factory.ini` to setup your Wi-Fi settings to allow Anyka IPC to set it up for you.
-> You can leave ip, netmask and gateway blank to use DHCP
-
-If you do not want to use this (whatever), ensure `_ak39_factory.ini` is empty and edit `sd_card/custom/configs/wifi.conf`.
-
-This will start wpa_supplicant with the settings provided in `wifi.conf`
-
-Notes:
-- `WIFI_MODE=none` leaves networking unchanged (stock firmware manages it).
-- The scripts use `wpa_supplicant` + `wpa_cli` via `/usr/sbin/station_connect.sh`.
-
-## Logs
-
-All custom logs are written to the SD card under `SD_DIR/logs/` (where `SD_DIR` is `/tmp/sd` on-device).
 
 # Tested with the following cameras:
 <img width="1080" height="1080" alt="image" src="https://github.com/user-attachments/assets/d4881226-0206-43f8-b0c3-6c31529379e6" />
